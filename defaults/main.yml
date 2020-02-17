@@ -1,0 +1,6 @@
+acme_cert_file: /etc/ssl/certs/cert.pem
+acme_private_key_file: /etc/ssl/private/privkey.pem
+acme_fullchain_file: /etc/ssl/certs/fullchain.pem
+
+acme_share_key_users: []
+acme_share_key_dir: /etc/ssl/user

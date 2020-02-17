@@ -1,0 +1,51 @@
+---
+  - name: Fetch acme.sh script
+    get_url:
+      url: 'https://get.acme.sh'
+      dest: '{{ ansible_user_dir }}/acme_installer.sh'
+
+  - name: Install Bubblewrap
+    package:
+      name: bubblewrap
+      state: present
+
+  - name: install acme.sh script
+    command: 'sh {{ ansible_user_dir }}/acme_installer.sh'
+    args:
+      creates: '{{ ansible_user_dir }}/.acme.sh'     
+  
+  - name: create /etc/acme
+    file:
+      path: /etc/acme
+      state: directory
+      mode: 0755
+
+  - name: create fake resolv.conf
+    copy:
+      dest: '/etc/acme/resolv.conf'
+      content: |
+        nameserver 8.8.8.8
+        search sanbi.ac.za
+
+  - name: Install certificate
+    shell: >-
+      bwrap --bind / / --ro-bind /etc/acme/resolv.conf /etc/resolv.conf
+      --dev /dev {{ ansible_user_dir }}/.acme.sh/acme.sh --issue
+      --dns dns_cloudns -d {{ inventory_hostname }} --cert-file {{ acme_cert_file }}
+      --key-file {{ acme_private_key_file }}
+      --fullchain-file {{ acme_fullchain_file }}
+      --force
+    args:
+      creates: "{{ acme_cert_file | default('/etc/ssl/certs/cert.pem') }}"
+    environment:
+      CLOUDNS_AUTH_ID: '{{ acme_cloudns_auth_id }}'
+      CLOUDNS_AUTH_PASSWORD: '{{ acme_cloudns_password }}'
+
+  - name: Edit crontab certificate renewal script
+    lineinfile:
+      path: /var/spool/cron/crontabs/root
+      regexp: '(.*\*) "(/root/.acme.sh.*)'
+      backrefs: yes
+      line: '\1  bwrap --bind / / --ro-bind {{ ansible_user_dir }}/resolv.conf /etc/resolv.conf --dev /dev "\2'
+
+    
