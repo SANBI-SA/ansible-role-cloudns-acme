@@ -1,0 +1,11 @@
+galaxy_info:
+  role_name: sanbi-sa.cloudns-acme
+  author: Peter van Heusden
+  description: LetEncrypt setup using acme.sh and ClouDNS
+  company: South African National Bioinformatics Institute, University of the Western Cape
+  license: MIT
+  
+  min_ansible_version: 1.2
+  galaxy_tags: []
+
+dependencies: []
