@@ -46,6 +46,6 @@
       path: /var/spool/cron/crontabs/root
       regexp: '(.*\*) "(/root/.acme.sh.*)'
       backrefs: yes
-      line: '\1  bwrap --bind / / --ro-bind {{ ansible_user_dir }}/resolv.conf /etc/resolv.conf --dev /dev "\2'
+      line: '\1  bwrap --bind / / --ro-bind /etc/acme/resolv.conf /etc/resolv.conf --dev /dev "\2'
 
     
